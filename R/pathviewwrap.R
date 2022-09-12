@@ -1,8 +1,10 @@
 #' @export
-pathviewwrap <- function(fq.dir="mouse_raw", ref.dir = NA, phenofile= NA, outdir="results", endness="SE",  entity="Mus musculus", corenum = 8, diff.tool="DESEQ2", compare="unpaired"){
- dirlist <- sanity_check(fq.dir, ref.dir , phenofile, outdir, endness,  entity, corenum , diff.tool, compare )
+pathviewwrap <- function(fq.dir="mouse_raw", ref.dir = NA, phenofile= NA, outdir="results", endness="SE",  
+                         entity="Mus musculus", corenum = 8, diff.tool="DESEQ2", compare="unpaired")
+    {
+    dirlist <- sanity_check(fq.dir, ref.dir , phenofile, outdir, endness,  entity, corenum , diff.tool, compare )
 
- qc.dir <- dirlist[1]
+    qc.dir <- dirlist[1]
     trim.dir <- dirlist[2]
     sampleFile <- dirlist[3]
     genomeFile<- dirlist[4]

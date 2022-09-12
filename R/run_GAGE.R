@@ -38,11 +38,13 @@ run_pathway <- function(entity, exp.fc, compare, gage.dir, cnts, grp.idx){
     #visualize top 3 pathways
     #run pathview only for KEGG pathways
     if (same.dir==F){
-      pv.out.list <- sapply(na.omit(path.ids[1:6]), function(pid) pathview( gene.data = exp.fc, pathway.id = pid, species = entity, out.suffix=diff.tool))
+      pv.out.list <- sapply(na.omit(path.ids[1:6]), function(pid) pathview( gene.data = exp.fc, pathway.id = pid, 
+                                                                           species = entity, out.suffix=diff.tool))
     }
     kegg.sig<-sigGeneSet(fc.kegg.p, outname=paste0(entity,anla_type, ".sig",basename(work.dir)), pdf.size=c(17,17), heatmap = F)#wont give heatmap for fold change used in gage
     write.table(kegg.sig$greater, file = file.path(gage.dir , paste0(anla_type, ".sig.txt")), sep = "\t")
-    #	kegg.esg.up <- esset.grp(fc.kegg.p$greater, cnts, gsets = gsets, ref =ref, samp =samp, test4up = T, output = T, outname = "kegg.up", make.plot = T) # currently heatmap is not supported
+    #	kegg.esg.up <- esset.grp(fc.kegg.p$greater, cnts, gsets = gsets, ref =ref, samp =samp, test4up = T,
+                            #output = T, outname = "kegg.up", make.plot = T) # currently heatmap is not supported
 
     # gs=unique(unlist(gsets[rownames(fc.kegg.p$greater)[1:3]]))
     # essData=essGene(gs, cnts, ref = ref, samp = samp,compare=compare)

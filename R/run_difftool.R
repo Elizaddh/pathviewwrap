@@ -21,38 +21,14 @@ if(sum(rownames(cnts)%in% unlist(unname(kegg.gs.species$kg.sets)) ) < 10){
 #grp.idx[ref] <- "reference"
 #grp.idx[samp] <- "sample"
 
-if(diff.tool == "DESEQ2"){
-  coldat=DataFrame(grp=factor(grp.idx))
-  dds <- DESeqDataSetFromMatrix(cnts, colData=coldat, design =~ grp)
-  dds <- DESeq(dds)
-  deseq2.res <- results(dds)
-  #direction of fc, depends on levels(coldat$grp), the first level
-  #taken as reference (or control) and the second one as experiment.
-  deseq2.fc=deseq2.res$log2FoldChange
-  names(deseq2.fc)=rownames(deseq2.res)
-  exp.fc=deseq2.fc
-  table(is.na(deseq2.res$padj))
-  write.table(deseq2.res , file.path(deseq2.dir, "DESEQ2_logfoldchange.txt"), col.names =TRUE, row.names =TRUE, quote =FALSE)
-  tiff(file.path(deseq2.dir, "Volcano_deseq2.tiff"), units="in", width=15, height=15, res=300)
-  plot(EnhancedVolcano::EnhancedVolcano(deseq2.res, x ='log2FoldChange', y ='pvalue', lab =rownames(deseq2.res)))
-  dev.off()
-}
 if(diff.tool=="edgeR"){
-  ###########################################################################################################################################
-  library(edgeR)
-  dgel <- edgeR::DGEList(counts=cnts, group=factor(grp.idx))
-  dgel <- edgeR::calcNormFactors(dgel)
-  dgel <- edgeR::estimateCommonDisp(dgel)
-  dgel <- edgeR::estimateTagwiseDisp(dgel)
-  et <- edgeR::exactTest(dgel)
-  edger.fc=et$table$logFC
-  names(edger.fc)=rownames(et$table)
-  exp.fc=edger.fc
-  write.table(et , file.path(edger.dir, "EDGER_logfoldchange.txt"), col.names =TRUE, row.names =TRUE, quote =FALSE)
-  tiff(file.path(edger.dir, "edgeR_Volcano_edgeR.tiff"), units="in", width=15, height=15, res=300)
-  plot(EnhancedVolcano::EnhancedVolcano(et$table, x ='logFC', y="PValue", lab=rownames(et$table)))
-  dev.off()
+ exp.fc <- run_edgeR(cnts, grp.idx, edgeR.dir)
 }
+else
+{
+exp.fc  <-run_deseq2(cnts,grp.idx, deseq2.dir)
+}
+
 ######
 #include bayseq
 

@@ -21,7 +21,7 @@ pathviewwrap <- function(fq.dir="mouse_raw", ref.dir = NA, phenofile= NA, outdir
     cl <- makeCluster(corenum)
 
     clusterExport(cl,c("fq.dir","endness", "trim.dir"), envir = environment())#.GlobalEnv)
-    #ans <- parSapply(cl , read.csv( sampleFile , header =T, sep ="\t")$SampleName  ,run_fastp )
+    ans <- parSapply(cl , read.csv( sampleFile , header =T, sep ="\t")$SampleName  ,run_fastp )
     print("the trim run is complete")
     stopCluster(cl)
     #

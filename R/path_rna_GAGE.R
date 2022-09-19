@@ -7,13 +7,7 @@ run_pathway <- function(entity, exp.fc, compare, gage.dir, cnts, grp.idx){
 
   kegg.gs<- kegg.gsets(entity)
   head(cnts)
-  ###########################################################################################################################################
-  #TO DO
-  #make sure the gene id of gsets match with cnts genes id #partial complete , ensemble will be converted to entrez
-  ###########################################################################################################################################
-  #TO THINK and futher test
-  #maybe run gage with cnts also  data and do analysis
-  ####################################################################################################################
+  
   run_gset_analysis <- function(gsets, work.dir, same.dir , compare){
     setwd(work.dir)
     print("working in ")
@@ -42,26 +36,7 @@ run_pathway <- function(entity, exp.fc, compare, gage.dir, cnts, grp.idx){
     }
     kegg.sig<-sigGeneSet(fc.kegg.p, outname=paste0(entity,anla_type, ".sig",basename(work.dir)), pdf.size=c(17,17), heatmap = F)#wont give heatmap for fold change used in gage
     write.table(kegg.sig$greater, file = file.path(gage.dir , paste0(anla_type, ".sig.txt")), sep = "\t")
-    #	kegg.esg.up <- esset.grp(fc.kegg.p$greater, cnts, gsets = gsets, ref =ref, samp =samp, test4up = T, output = T, outname = "kegg.up", make.plot = T) # currently heatmap is not supported
-
-    # gs=unique(unlist(gsets[rownames(fc.kegg.p$greater)[1:3]]))
-    # essData=essGene(gs, cnts, ref = ref, samp = samp,compare=compare)
-    # head(essData, 4)
-    # ref1=ref
-    # samp1=samp
-    # library(gplots)
-    # for (gs in rownames(fc.kegg.p$greater)[1:3]) {
-    #   outname = gsub(" |:|/", "_", substr(gs, 10, 100))
-    #   outname = paste0(outname, "ess_memb_gene")
-    #   geneData(genes = gsets[[gs]], exprs = essData,col = bluered(100), ref =ref, samp = samp, outname = outname, txt = T, heatmap = T, Colv = F, Rowv = F, dendrogram = "none", limit = 3, scatterplot = T)
-    # }
-    # for (gs in rownames(fc.kegg.p$greater)[1:3]) {
-    #   outname = gsub(" |:|/", "_", substr(gs, 10, 100))
-    #   outname = paste(outname, "all", sep=".")
-    #   geneData(genes = gsets[[gs]], exprs = cnts, ref = ref, samp = samp,col=bluered(100), outname =outname, txt = T, heatmap = T, Colv = F, Rowv = F, dendrogram = "none", limit = 3, scatterplot = T)
-    # }
-
-  }
+    }
 
   #TO DO try using lapply for all function call of kegg pathways
   run_gset_analysis(kegg.gs$kg.sets[kegg.gs$sigmet.idx],sig_n_met,same.dir = F, compare=compare )

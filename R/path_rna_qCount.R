@@ -1,6 +1,5 @@
 ##
 #for mapping
-##move this chunck to up where u have processed annotation and genome file##
 library(Rsamtools) #scanFaIndex
 library(GenomicFeatures)
 library(parallel)

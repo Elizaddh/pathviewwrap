@@ -22,6 +22,7 @@ run_fastp <-function(samplename, seq_tech){
     cmd <- paste0("fastp -i ", file.path(fq.dir , "samplename_to_sed.fastq"), " -o ",  file.path(trim.dir , "samplename_to_sed_paired.fastq"), " -h samplename_to_sed.html", "-j samplename_to_sed.json")
 
 }
+    }
     
     
     

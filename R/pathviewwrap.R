@@ -1,6 +1,6 @@
 #' @export
 pathviewwrap <- function(fq.dir="mouse_raw", ref.dir = NA, phenofile= NA, outdir="results", endness="SE",  entity="Mus musculus", corenum = 8, diff.tool="DESEQ2", compare="unpaired"){
- dirlist <- sanity_check(fq.dir, ref.dir , phenofile, outdir, endness,  entity, corenum , diff.tool, compare )
+ dirlist <- sanity_check(fq.dir, ref.dir , phenofile, outdir, endness,  entity, corenum , diff.tool, compare , seq_tech)
 
  qc.dir <- dirlist[1]
     trim.dir <- dirlist[2]
@@ -24,7 +24,7 @@ pathviewwrap <- function(fq.dir="mouse_raw", ref.dir = NA, phenofile= NA, outdir
     #         }
     cl <- makeCluster(corenum)
 
-    clusterExport(cl,c("fq.dir","endness", "trim.dir"), envir = environment())#.GlobalEnv)
+    clusterExport(cl,c("fq.dir","endness", "trim.dir", "seq_tech"), envir = environment())#.GlobalEnv)
     ans <- parSapply(cl , read.csv( sampleFile , header =T, sep ="\t")$SampleName  ,run_fastp )
     print("the trim run is complete")
     stopCluster(cl)

@@ -1,6 +1,6 @@
 #run fastp
 #run fastp
-run_fastp <-function(samplename, seq_tech){
+run_fastp <-function(samplename){
   
   if (seq_tech == "PacBio" | seq_tech == "Nanopore" ){
 

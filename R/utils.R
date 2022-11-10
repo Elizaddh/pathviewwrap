@@ -1,5 +1,5 @@
 #make sure force = T is good
-sanity_check <- function(fq.dir, ref.dir , phenofile, outdir, endness,  entity , corenum , diff.tool, compare){
+sanity_check <- function(fq.dir, ref.dir , phenofile, outdir, endness,  entity , corenum , diff.tool, compare, seq_tech){
   library(stringr)
 
   #################################################################

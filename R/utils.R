@@ -1,5 +1,5 @@
 #make sure force = T is good
-sanity_check <- function(fq.dir, ref.dir , phenofile, outdir, endness,  entity , corenum , diff.tool, compare, paired){ 
+sanity_check <- function(fq.dir, ref.dir , phenofile, outdir, endness,  entity , corenum , diff.tool, compare){ 
                          
   library(stringr)
   
@@ -120,17 +120,7 @@ sanity_check <- function(fq.dir, ref.dir , phenofile, outdir, endness,  entity ,
   } else {
     genomeFile <- list.files(ref.dir, ".fa$", full.names= T)
     geneAnnotation <- list.files(ref.dir, ".gtf$", full.names = T) #could be changed to include one of gtf, gff etc, check with quasR package
-    #does ref.dir also have ref index, if not make indexes
-    if(length(list.files(ref.dir , ".Rhisat2$", full.names = T)) !=1){
-      sampleFiletmp <- read.table(sampleFile, "\t", header = T)[1,]
-      write.table(sampleFiletmp, sep=  "\t", col.names = T, row.names = F, file = file.path(result.dir, "sampleFiletmp.txt"))
-      cl2 <- makeCluster(corenum)
-      aligned_proj <-  QuasR::qAlign(file.path(result.dir, "sampleFiletmp.txt"), paired =paired, clObj=cl2, alignmentsDir =aligned_bam ,
-                                     genome=genomeFile,geneAnnotation=geneAnnotation, splicedAlignment =TRUE, aligner ="Rhisat2" ) # this will form the reference index
-      
-      #the program check for aligned bam before running so we dont really need to remove this sample from our sampleFile
-      unlink(file.path(result.dir, "sampleFiletmp.txt"))
-    }
+    
   }
   return (c(qc.dir,trim.dir,sampleFile, genomeFile, geneAnnotation, deseq2.dir,gage.dir, grp.idx))
 }

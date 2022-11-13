@@ -1,20 +1,21 @@
 #make sure force = T is good
-sanity_check <- function(fq.dir, ref.dir , phenofile, outdir, endness,  entity , corenum , diff.tool, compare, seq_tech){
+sanity_check <- function(fq.dir, ref.dir , phenofile, outdir, endness,  entity , corenum , diff.tool, compare, paired){ 
+                         
   library(stringr)
-
+  
   #################################################################
   ##
   #Check if files/folders  exists and create if not
   ##
   #################################################################
-
+  
   if (!file.exists(outdir)){
     # default output file
     dir.create(outdir)
   }
   result.dir <- outdir
   #print("The results will be organized in ",result.dir)
-
+  
   # make sure the second column is class and first column is sample name
   # make sure file is tab seperated
   if (!file.exists(phenofile)){ ###TO DO make sure reference is first aplhanumerically#
@@ -31,7 +32,7 @@ sanity_check <- function(fq.dir, ref.dir , phenofile, outdir, endness,  entity ,
   grp.idx[ref] <- "reference"
   grp.idx[samp] <- "sample"
   ##TO DO write something to automatically determine paired infromation, rev/fr etc
-print("this is first grp.idx")
+  print("this is first grp.idx")
   print(grp.idx)
   #check and create dir for organizing results
   checkcretdir <- function(parentname, dirname){
@@ -40,7 +41,7 @@ print("this is first grp.idx")
     }
     assign(dirname,value = file.path(parentname, dirname), envir = .GlobalEnv)
   }
-
+  
   folder_to_create<- list("fastqc_results", "fastp_results","gage_results", "differential_analysis","aligned_bam","pathway_analysis" )
   trim_dir <-list ( "fastp_log", "unpaired")
   diff_dir <-list ("DESeq2","edgeR")
@@ -53,7 +54,7 @@ print("this is first grp.idx")
   lapply(pathway_types, checkcretdir, parentname= file.path(result.dir , "gage_results")  )
   lapply(kegg_types, checkcretdir, parentname= file.path(result.dir ,"gage_results","KEGG" )  )
   lapply(go_types, checkcretdir, parentname= file.path(result.dir ,"gage_results","GO" )  )
-
+  
   #just to make sure rest of codes are same
   qc.dir <- fastqc_results
   diff.dir <- differential_analysis
@@ -65,41 +66,12 @@ print("this is first grp.idx")
   deseq2.dir <- DESeq2
   kegg.dir <- KEGG
   go.dir <- GO
-
-
-  #References
-  #if only species name is given and both geneAnnotation and genome is NULL
-  if( is.na(ref.dir)){
-    #ref_info <- read.table("data/species_genome_annotation_pkg", sep = "\t", header = T, na.strings=c(""," ","NA")) #this file is supplied with script
-    ref_info <- as.data.frame(readRDS("data/anntpkglist.RDS"))#, sep = "\t", header = T, na.strings=c(""," ","NA")) #this file is supplied with script
-
-    species_no <- which(ref_info$species==entity)
-    annotate_pkg <- ref_info$annotation[species_no]
-    genome_pkg <- ref_info$genome[species_no]
-
-    ###make sure both annot and genome package is installed for the species
-    # (set of genome and annotation pkg come from developers list)
-
-    pkg.on = require(annotate_pkg, character.only = TRUE, lib.loc = .libPaths()[1])
-    if (!pkg.on) {
-      if (!requireNamespace("BiocManager", quietly=TRUE))
-        install.packages("BiocManager")
-      BiocManager::install(annotate_pkg,force = T, suppressUpdates =TRUE, lib.loc = .libPaths()[1] )
-      pkg.on = require(annotate_pkg, character.only = TRUE, lib.loc = .libPaths()[1])
-      if (!pkg.on)
-        stop(paste("Fail to install/load gene annotation package ",annotate_pkg, "!", sep = ""))
-    }
-    geneAnnotation <-  file.path(.libPaths()[1],annotate_pkg, "extdata", paste0(annotate_pkg, ".sqlite" ) )
-    genomeFile <- genome_pkg
-  } else {
-    genomeFile <- list.files(ref.dir, ".fa$", full.names= T)
-    geneAnnotation <- list.files(ref.dir, ".gtf$", full.names = T) #could be changed to include one of gtf, gff etc, check with quasR package
-  }
-
+  
+  
   ### To run qAlign we need samplefile
   ## TO DO Make sure this works for all types of file name and single and paired end data, bunch of bam files and bunch of fastq files, partially complete
   ##############################################################################
-
+  
   if( endness== "SE"){
     pinfo_string <- ".fastq"
   }else{
@@ -118,11 +90,48 @@ print("this is first grp.idx")
     sampleFile <- file.path(result.dir, "sampleFile.txt")
     write.table(file =sampleFile,sep = "\t", as.data.frame( cbind(FileName1, FileName2, SampleName)) ,quote =F ,  col.names=T, row.names=F)
   }
-
+  
+  
+  
+  #References
+  #if only species name is given and both geneAnnotation and genome is NULL
+  if( is.na(ref.dir)){
+    #ref_info <- read.table("data/species_genome_annotation_pkg", sep = "\t", header = T, na.strings=c(""," ","NA")) #this file is supplied with script
+    ref_info <- as.data.frame(readRDS("data/anntpkglist.RDS"))#, sep = "\t", header = T, na.strings=c(""," ","NA")) #this file is supplied with script
+    
+    species_no <- which(ref_info$species==entity)
+    annotate_pkg <- ref_info$annotation[species_no]
+    genome_pkg <- ref_info$genome[species_no]
+    
+    ###make sure both annot and genome package is installed for the species
+    # (set of genome and annotation pkg come from developers list)
+    
+    pkg.on = require(annotate_pkg, character.only = TRUE, lib.loc = .libPaths()[1])
+    if (!pkg.on) {
+      if (!requireNamespace("BiocManager", quietly=TRUE))
+        install.packages("BiocManager")
+      BiocManager::install(annotate_pkg,force = T, suppressUpdates =TRUE, lib.loc = .libPaths()[1] )
+      pkg.on = require(annotate_pkg, character.only = TRUE, lib.loc = .libPaths()[1])
+      if (!pkg.on)
+        stop(paste("Fail to install/load gene annotation package ",annotate_pkg, "!", sep = ""))
+    }
+    geneAnnotation <-  file.path(.libPaths()[1],annotate_pkg, "extdata", paste0(annotate_pkg, ".sqlite" ) )
+    genomeFile <- genome_pkg
+  } else {
+    genomeFile <- list.files(ref.dir, ".fa$", full.names= T)
+    geneAnnotation <- list.files(ref.dir, ".gtf$", full.names = T) #could be changed to include one of gtf, gff etc, check with quasR package
+    #does ref.dir also have ref index, if not make indexes
+    if(length(list.files(ref.dir , ".Rhisat2$", full.names = T)) !=1){
+      sampleFiletmp <- read.table(sampleFile, "\t", header = T)[1,]
+      write.table(sampleFiletmp, sep=  "\t", col.names = T, row.names = F, file = file.path(result.dir, "sampleFiletmp.txt"))
+      cl2 <- makeCluster(corenum)
+      aligned_proj <-  QuasR::qAlign(file.path(result.dir, "sampleFiletmp.txt"), paired =paired, clObj=cl2, alignmentsDir =aligned_bam ,
+                                     genome=genomeFile,geneAnnotation=geneAnnotation, splicedAlignment =TRUE, aligner ="Rhisat2" ) # this will form the reference index
+      
+      #the program check for aligned bam before running so we dont really need to remove this sample from our sampleFile
+      unlink(file.path(result.dir, "sampleFiletmp.txt"))
+    }
+  }
   return (c(qc.dir,trim.dir,sampleFile, genomeFile, geneAnnotation, deseq2.dir,gage.dir, grp.idx))
 }
-
-
-
-
 

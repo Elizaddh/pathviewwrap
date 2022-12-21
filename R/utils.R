@@ -106,18 +106,23 @@ sanity_check <- function(fq.dir, ref.dir , phenofile, outdir, endness,  entity ,
     ###make sure both annot and genome package is installed for the species
     # (set of genome and annotation pkg come from developers list)
     
-    pkg.on = require(annotate_pkg, character.only = TRUE, lib.loc = .libPaths()[1])
+    install_ref_pkg <- function(pkgtoworkon) {
+    pkg.on = require(pkgtoworkon, character.only = TRUE, lib.loc = .libPaths()[1])
     if (!pkg.on) {
       if (!requireNamespace("BiocManager", quietly=TRUE))
         install.packages("BiocManager")
-      BiocManager::install(annotate_pkg,force = T, suppressUpdates =TRUE, lib.loc = .libPaths()[1] )
-      pkg.on = require(annotate_pkg, character.only = TRUE, lib.loc = .libPaths()[1])
+      BiocManager::install(pkgtoworkon,force = T, suppressUpdates =TRUE, lib.loc = .libPaths()[1] )
+      pkg.on = require(pkgtoworkon, character.only = TRUE, lib.loc = .libPaths()[1])
       if (!pkg.on)
-        stop(paste("Fail to install/load gene annotation package ",annotate_pkg, "!", sep = ""))
+        stop(paste("Fail to install/load gene annotation package ",pkgtoworkon, "!", sep = ""))
     }
-    geneAnnotation <-  file.path(.libPaths()[1],annotate_pkg, "extdata", paste0(annotate_pkg, ".sqlite" ) )
-    genomeFile <- genome_pkg
-  } else {
+  }
+  
+  lapply(list(genome_pkg, annotate_pkg),  install_ref_pkg)
+  genomeFile <- genome_pkg
+  geneAnnotation <-  file.path(.libPaths()[1],annotate_pkg, "extdata", paste0(annotate_pkg, ".sqlite" ) )
+  
+} else {
     genomeFile <- list.files(ref.dir, ".fa$", full.names= T)
     geneAnnotation <- list.files(ref.dir, ".gtf$", full.names = T) #could be changed to include one of gtf, gff etc, check with quasR package
     
